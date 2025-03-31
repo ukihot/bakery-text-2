@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bakery Text
 
-## Getting Started
+A CUI-based bakery game. Use commands to bake bread while managing economic factors and fending off intruders.
 
-First, run the development server:
+## Gameplay
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Manage multiple terminals, balance supply and demand, and protect your bakery from unwanted guests.
+Aim for a high score by maintaining steady sales and efficient operations.
+
+### Key Features:
+- **Economic Simulation**: Prices and demand fluctuate based on the **"NIGIWAI" (Economic Tempo) ⭐️0.0~5.0**.
+- **Inventory Management**: Maintain an optimal stock of bread while preventing shortages.
+- **Tower Defense Mechanics**: Chase away intruders (`shoo` command) to prevent economic losses.
+
+## Game Elements
+
+- Terminals have **Commander** and **Observer** modes.
+- In **Observer mode**, information flows continuously. Switch to **Commander mode** to input commands.
+- Ingredients and artifacts are unique to each terminal. Use the `mv` command to transfer them.
+- **NIGIWAI**: A 5-star rating system that affects demand and pricing:
+  - ⭐️ 5.0: High demand, high prices, but expensive ingredients.
+  - ⭐️ 0.0: Low demand, low prices, but cheap ingredients.
+  - Demand drops if customers repeatedly find empty shelves.
+
+## General Commands
+
+- `help`: Display available commands for the current section.
+- `ls`: Observe the current state.
+- `mv`: Move ingredients or artifacts to another terminal.
+- `shoo`: Chase away intruders.
+
+## Sections
+
+| ID  | Section         | Abbr | Purpose                        | Commands             | Receives From |
+| --- | --------------- | ---- | ------------------------------ | -------------------- | ------------- |
+| 00  | Purchasing      | PS   | Order and manage materials     | `od`                 | (None)        |
+| 01  | Pantry          | PN   | Store ingredients              |                      | PS            |
+| 02  | Mixing          | MX   | Mix ingredients to make dough  | `add`, `mix`         | ST            |
+| 03  | Cooling         | CL   | Ferment and cool dough         | `pf`, `cl`           | MX, SH, BK    |
+| 04  | Shaping         | SH   | Shape dough                    | `div`, `roll`        | CL            |
+| 05  | Baking          | BK   | Bake dough                     | `bk`                 | SH            |
+| 06  | Packaging       | PK   | Package bread                  | `pack`, `label`      | CL            |
+| 07  | Quality Control | QC   | Check bread quality            | `inspect`, `report`  | PK            |
+| 08  | Storage         | ST   | Store packaged bread           | `store`, `inv`       | QC            |
+| 09  | Sales Front     | SF   | Sell bread                     | (Observer mode only) | ST            |
+| 10  | Waste           | WS   | Handle waste                   | `dispose`            | (Any)         |
+| 11  | Utilities       | UT   | Manage water, electricity, gas | (Observer mode only) | (None)        |
+
+### Enum Mapping
+
+The `ID` column corresponds to the `TerminalSection` enum in the code:
+
+```typescript
+enum TerminalSection {
+	Purchasing = 0,
+	Pantry,
+	Mixing,
+	Cooling,
+	Shaping,
+	Baking,
+	Packaging,
+	QualityControl,
+	Storage,
+	SalesFront,
+	Waste,
+	Utilities,
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Intruders (Unwanted Guests)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Intruders frequently enter different sections and disrupt operations.
+If left unchecked, they cause financial loss and product waste, reducing stock and leading to **missed sales opportunities**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Type      | Behavior |
+|----------|----------|
+| **Nezumi (Rats)** 🐭 | Nibble on bread, reducing available stock. |
+| **Dorobō (Thieves)** 🏴‍☠️ | Steal money directly from the register. |
+| **Kureimā (Complainers)** 😡 | Continuously demand refunds, reducing demand tempo. |
 
-## Learn More
+### **How to Handle Intruders**
+- Use the `shoo` command in **Commander mode** to chase them away.
+- Ignoring intruders results in **economic losses and product spoilage**.
+- **Bonus:** Successfully shooing intruders can **increase customer trust**, boosting demand.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Stay vigilant, manage your inventory wisely, and fend off intruders to run a successful bakery! 🍞✨
