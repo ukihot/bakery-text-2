@@ -1,0 +1,129 @@
+"use client";
+
+import { useCallback, useContext, useEffect } from "react";
+import { type Terminal, TerminalContext } from "../context/TerminalContext";
+import { useAbnormalHandlers } from "../hooks/useAbnormalHandlers";
+import { useNormalHandlers } from "../hooks/useNormalHandlers";
+import TerminalWindowUnit from "./TerminalWindowUnit";
+
+export const TerminalWindows = () => {
+    const context = useContext(TerminalContext);
+    if (!context) {
+        return null;
+    }
+    const { terminals } = context;
+
+    const abnormalHandlers = useAbnormalHandlers(context);
+    const normalHandlers = useNormalHandlers(context);
+
+    const handleTrouble = useCallback(
+        (terminal: Terminal) => {
+            switch (terminal.id) {
+                case 0:
+                    abnormalHandlers.handlePurchasingTrouble();
+                    break;
+                case 1:
+                    abnormalHandlers.handlePantryTrouble();
+                    break;
+                case 2:
+                    abnormalHandlers.handleMixingTrouble();
+                    break;
+                case 3:
+                    abnormalHandlers.handleCoolingTrouble();
+                    break;
+                case 4:
+                    abnormalHandlers.handleShapingTrouble();
+                    break;
+                case 5:
+                    abnormalHandlers.handleBakingTrouble();
+                    break;
+                case 6:
+                    abnormalHandlers.handlePackagingTrouble();
+                    break;
+                case 7:
+                    abnormalHandlers.handleSalesFrontTrouble();
+                    break;
+                case 8:
+                    abnormalHandlers.handleWasteTrouble();
+                    break;
+                case 9:
+                    abnormalHandlers.handleUtilitiesTrouble();
+                    break;
+                default:
+            }
+        },
+        [abnormalHandlers],
+    );
+
+    const handleNormalBatch = useCallback(
+        (terminal: Terminal) => {
+            switch (terminal.id) {
+                case 0:
+                    normalHandlers.handlePurchasingBatch();
+                    break;
+                case 1:
+                    normalHandlers.handlePantryBatch();
+                    break;
+                case 2:
+                    normalHandlers.handleMixingBatch();
+                    break;
+                case 3:
+                    normalHandlers.handleCoolingBatch();
+                    break;
+                case 4:
+                    normalHandlers.handleShapingBatch();
+                    break;
+                case 5:
+                    normalHandlers.handleBakingBatch();
+                    break;
+                case 6:
+                    normalHandlers.handlePackagingBatch();
+                    break;
+                case 7:
+                    normalHandlers.handleSalesFrontBatch();
+                    break;
+                case 8:
+                    normalHandlers.handleWasteBatch();
+                    break;
+                case 9:
+                    normalHandlers.handleUtilitiesBatch();
+                    break;
+                default:
+            }
+        },
+        [normalHandlers],
+    );
+
+    useEffect(() => {
+        const intervals: NodeJS.Timeout[] = [];
+
+        for (const terminal of terminals) {
+            const interval = setInterval(() => {
+                if (terminal.statusText.terminalStatus === "HEALTHY") {
+                    handleNormalBatch(terminal);
+                }
+                if (Math.random() < terminal.troubleProbability) {
+                    handleTrouble(terminal);
+                }
+            }, 3000); // 8秒ごとに実行
+            intervals.push(interval);
+        }
+
+        return () => {
+            intervals.forEach(clearInterval);
+        };
+    }, [terminals, handleTrouble, handleNormalBatch]);
+
+    return (
+        <>
+            {terminals.map((terminal) => (
+                <TerminalWindowUnit
+                    key={terminal.id}
+                    {...terminal}
+                    visible={false}
+                    progress={0}
+                />
+            ))}
+        </>
+    );
+};

@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bakery Text
 
-## Getting Started
+A CUI-based bakery management game focused on inventory control, maintenance, security, hygiene, and cost optimisation.
 
-First, run the development server:
+## General Commands
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `help` : Display available commands for the current section.
+- `ls`   : Observe the current state.
+- `rest` : Allow employees to rest and recover from fatigue.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## NIGIWAI
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- A 5-star rating system that affects demand and pricing:
+  - ⭐️ 5.0: High demand, high prices, but expensive ingredients.
+  - ⭐️ 0.0: Low demand, low prices, but cheap ingredients.
+- NIGIWAI is influenced by:
+  - ✅ Proper inventory & waste management
+  - ✅ Effective intruder control & cleanliness
+  - ✅ Stable production & high sales
+  - ❌ Overcrowding, high waste rates
+  - ❌ Persistent intruder presence (rats, thieves)
+  - ❌ Customer complaints or refunds
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Sections & Commands
 
-## Learn More
+| ID  | Mode        | Abbr | Role                             | Management Commands (Admin Actions)                        |
+| --- | ----------- | ---- | -------------------------------- | ---------------------------------------------------------- |
+| 00  | Purchasing  | PS   | Order and manage materials       | `order` (bulk purchase), `quote` (check price trends)        |
+| 01  | Pantry      | PN   | Storage & shelf life tracking    | `rotate` (FIFO check), `audit` (spoilage check)              |
+| 02  | Mixing      | MX   | Monitor ingredient balance       | `adjust` (balance supply chain), `halt` (stop overproduction)  |
+| 03  | Cooling     | CL   | Manage storage capacity          | `temp` (set cooling power), `expand` (upgrade storage)       |
+| 04  | Shaping     | SH   | Manage efficiency & layout       | `layout` (optimise space), `inspect` (workflow check)        |
+| 05  | Baking      | BK   | Maintain oven performance        | `repair` (fix issues), `fuel` (adjust power usage)           |
+| 06  | Packaging   | PK   | Ensure quality control           | `qc` (inspect batches), `speed` (adjust packaging rate)      |
+| 07  | Sales Front | SF   | Optimise pricing & sales         | `price` (adjust rates), `promo` (trigger discounts)          |
+| 08  | Waste Station | WS | Handle waste & recycling         | `dispose` (clear expired goods), `recycle` (reduce costs)    |
+| 09  | Utilities   | UT   | Manage water, electricity, gas   | `fix` (repair leaks), `budget` (set cost limits)             |
+## Troubles by Department
 
-To learn more about Next.js, take a look at the following resources:
+- **PS (Purchasing)**: Price surges, fraud, delivery delays (transport issues, bad weather)
+- **PN (Pantry)**: Spoilage, pest intrusion
+- **MX/CL/SH/BK (Mixing, Cooling, Shaping, Baking)**: Equipment failure, workplace accidents
+- **BK (Baking)**: Temperature anomalies, gas leaks
+- **PK (Packaging)**: Foreign object contamination
+- **SF (Sales Front)**: Complainer incidents, robbery
+- **WS (Waste Station)**: Overloaded waste
+- **UT (Utilities)**: Water leaks, electrical leaks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Fatigue Management
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Employees do not show numerical fatigue levels. Instead, their status is displayed in logs:
+  - 😊 “Looking energetic.”
+  - 😐 “Seems a bit tired.”
+  - 😫 “Moving slower than usual.”
+  - 💀 “Eyes look lifeless…”
+- Use `rest` to prevent overwork. However, excessive resting will reduce efficiency and impact the score.
 
-## Deploy on Vercel
+## Intruders & Security
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Intruders cause economic losses and hygiene risks. Monitor their presence via the **Event Log (EV)** and respond promptly.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Type                          | Behaviour                                            | Counteraction                                              |
+| ----------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| **Nezumi (Rats)** 🐭         | Consume stock, increase hygiene risk.              | `trap` (set traps), `sanitize` (clean infected areas)       |
+| **Dorobō (Thieves)** 🏴‍☠️    | Steal money from the register.                     | `guard` (increase security), `alarm` (set up anti-theft system) |
+| **Kureimā (Complainers)** 😡  | Demand refunds, lowering NIGIWAI.                  | `compensate` (settle issue), `policy` (set refund rules)     |
+
+## Game Over Conditions
+
+1. **Overwork**
+   Employees collapsing due to excessive fatigue → **Game Over**.
+
+2. **Health Department Violation**
+   Failing to maintain hygiene (e.g., rats present too long) triggers an inspection → **Game Over**.
+
+---
+
+## Bread Recipes (Ingredients per Piece and Country of Origin)
+
+| Type of Bread   | Country of Origin | Flour (g) | Yeast (g) | Salt (g) | Butter (g) | Sugar (g) | Milk (g) | Red Bean Paste (g) | Malt (g) |
+| --------------- | ----------------- | --------: | --------: | -------: | ---------: | --------: | -------: | -----------------: | -------: |
+| Croissant       | Austria           | 41.7      | 0.8       | 0.8      | 25.0       | 4.2       | 8.3      | 0.0                | 0.0      |
+| Anpan           | Japan             | 50.0      | 0.9       | 1.0      | 3.8        | 6.3       | 12.5     | 25.0               | 0.0      |
+| Baguette        | France            | 500.0     | 5.0       | 10.0     | 0.0        | 0.0       | 0.0      | 0.0                | 10.0     |
+| Bagel           | Poland            | 62.5      | 0.9       | 1.3      | 0.0        | 1.3       | 0.0      | 0.0                | 1.9      |
+| Ciabatta        | Italy             | 400.0     | 4.0       | 8.0      | 0.0        | 0.0       | 0.0      | 0.0                | 0.0      |
+| Naan            | India             | 60.0      | 1.0       | 0.5      | 2.0        | 3.0       | 10.0     | 0.0                | 0.0      |
