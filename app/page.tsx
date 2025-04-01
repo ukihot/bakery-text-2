@@ -1,27 +1,31 @@
 "use client";
 
-import { TerminalProvider } from "./context/TerminalContext";
-import { BackgroundConsole } from "./components/BackgroundConsole";
-import { MyTerminalWindow } from "./components/MyTerminalWindow";
-import React from "react";
-import { TerminalContext } from "./context/TerminalContext";
+import dynamic from "next/dynamic";
+
+const TerminalProvider = dynamic(
+    () =>
+        import("./context/TerminalContext").then((mod) => mod.TerminalProvider),
+    { ssr: false },
+);
+
+const TerminalWindows = dynamic(
+    () =>
+        import("./components/TerminalWindows").then(
+            (mod) => mod.TerminalWindows,
+        ),
+    { ssr: false },
+);
+
+const BackgroundConsole = dynamic(
+    () => import("./components/BackgroundConsole"),
+    { ssr: false },
+);
 
 export default function Home() {
-	return (
-		<TerminalProvider>
-			<BackgroundConsole />
-			<TerminalWindows />
-		</TerminalProvider>
-	);
+    return (
+        <TerminalProvider>
+            <BackgroundConsole />
+            <TerminalWindows />
+        </TerminalProvider>
+    );
 }
-
-const TerminalWindows = () => {
-	const { terminals } = React.useContext(TerminalContext) ?? { terminals: [] };
-	return (
-		<>
-			{terminals.map((terminal) => (
-				<MyTerminalWindow key={terminal.id} {...terminal} />
-			))}
-		</>
-	);
-};
