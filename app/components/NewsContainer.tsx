@@ -26,6 +26,11 @@ export const NewsContainer = ({
             }
         }
 
+        newsContainerRef.current.scrollTo({
+            top: newsContainerRef.current.scrollHeight,
+            behavior: "smooth",
+        });
+
         prevNewsLength.current = news.length;
     }, [news, terminalStatus]);
 

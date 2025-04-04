@@ -145,14 +145,22 @@ export const TerminalWindows = () => {
     );
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            for (const terminal of terminals) {
-                if (Math.random() < terminal.troubleProbability) {
-                    handleTrouble(terminal);
-                }
-            }
-        }, 8000); // 8秒ごとに実行
-        return () => clearInterval(interval);
+        const timers: NodeJS.Timeout[] = [];
+
+        terminals.forEach((terminal, index) => {
+            const timer = setTimeout(() => {
+                setInterval(() => {
+                    if (Math.random() < terminal.troubleProbability) {
+                        handleTrouble(terminal);
+                    }
+                }, 2000); // 8秒ごとに実行
+            }, index * 1000); // 1秒ずつずらして開始
+            timers.push(timer);
+        });
+
+        return () => {
+            timers.forEach(clearTimeout);
+        };
     }, [terminals, handleTrouble]);
 
     return (
