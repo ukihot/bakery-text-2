@@ -153,7 +153,7 @@ export const TerminalWindows = () => {
                     if (Math.random() < terminal.troubleProbability) {
                         handleTrouble(terminal);
                     }
-                }, 2000); // 8秒ごとに実行
+                }, 8000); // 8秒ごとに実行
             }, index * 1000); // 1秒ずつずらして開始
             timers.push(timer);
         });
