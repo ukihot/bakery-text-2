@@ -1,6 +1,6 @@
 # Bakery Text
 
-A CUI-based bakery management game focused on inventory control, maintenance, security, hygiene, and cost optimization.
+A CUI-based bakery management game focused on inventory control, maintenance, security, hygiene, and cost optimisation.
 
 ## General Commands
 
@@ -24,18 +24,18 @@ A CUI-based bakery management game focused on inventory control, maintenance, se
 
 ## Sections & Commands
 
-| ID  | Mode           | Abbr | Role                           | Management Commands (Admin Actions) | Title |
-| --- | -------------- | ---- | ------------------------------ | ----------------------------------- | ----- |
-| 00  | Purchasing     | PS   | Order and manage materials     | `order` (bulk purchase), `quote` (check price trends) | 調達 |
-| 01  | Pantry         | PN   | Storage & shelf life tracking  | `rotate` (FIFO check), `audit` (spoilage check) | 保管 |
-| 02  | Mixing         | MX   | Monitor ingredient balance     | `adjust` (balance supply chain), `halt` (stop overproduction) | 混錬 |
-| 03  | Cooling        | CL   | Manage storage capacity        | `temp` (set cooling power), `expand` (upgrade storage) | 冷却 |
-| 04  | Shaping        | SH   | Manage efficiency & layout     | `layout` (optimize space), `inspect` (workflow check) | 成型 |
-| 05  | Baking         | BK   | Maintain oven performance      | `repair` (fix issues), `fuel` (adjust power usage) | 焼成 |
-| 06  | Packaging      | PK   | Ensure quality control         | `qc` (inspect batches), `speed` (adjust packaging rate) | 検品 |
-| 07  | Sales Front    | SF   | Optimize pricing & sales       | `price` (adjust rates), `promo` (trigger discounts) | 販売 |
-| 08  | Waste Station  | WS   | Handle waste & recycling       | `dispose` (clear expired goods), `recycle` (reduce costs) | 廃棄 |
-| 09  | Utilities      | UT   | Manage water, electricity, gas | `fix` (repair leaks), `budget` (set cost limits) | 設備 |
+| ID  | Mode        | Abbr | Role                             | Management Commands (Admin Actions)                        | Title         |
+| --- | ----------- | ---- | -------------------------------- | ---------------------------------------------------------- | ------------- |
+| 00  | Purchasing  | PS   | Order and manage materials       | `order` (bulk purchase), `quote` (check price trends)        | Procurement   |
+| 01  | Pantry      | PN   | Storage & shelf life tracking    | `rotate` (FIFO check), `audit` (spoilage check)              | Storage       |
+| 02  | Mixing      | MX   | Monitor ingredient balance       | `adjust` (balance supply chain), `halt` (stop overproduction)  | Mixing        |
+| 03  | Cooling     | CL   | Manage storage capacity          | `temp` (set cooling power), `expand` (upgrade storage)       | Cooling       |
+| 04  | Shaping     | SH   | Manage efficiency & layout       | `layout` (optimise space), `inspect` (workflow check)        | Shaping       |
+| 05  | Baking      | BK   | Maintain oven performance        | `repair` (fix issues), `fuel` (adjust power usage)           | Baking        |
+| 06  | Packaging   | PK   | Ensure quality control           | `qc` (inspect batches), `speed` (adjust packaging rate)      | Packaging     |
+| 07  | Sales Front | SF   | Optimise pricing & sales         | `price` (adjust rates), `promo` (trigger discounts)          | Sales         |
+| 08  | Waste Station | WS | Handle waste & recycling         | `dispose` (clear expired goods), `recycle` (reduce costs)    | Disposal      |
+| 09  | Utilities   | UT   | Manage water, electricity, gas   | `fix` (repair leaks), `budget` (set cost limits)             | Facilities    |
 
 ## Fatigue Management
 
@@ -50,20 +50,29 @@ A CUI-based bakery management game focused on inventory control, maintenance, se
 
 Intruders cause economic losses and hygiene risks. Monitor their presence via the **Event Log (EV)** and respond promptly.
 
-| Type      | Behavior | Counteraction |
-|----------|----------|--------------|
-| **Nezumi (Rats)** 🐭 | Consume stock, increase hygiene risk. | `trap` (set traps), `sanitize` (clean infected areas) |
-| **Dorobō (Thieves)** 🏴‍☠️ | Steal money from the register. | `guard` (increase security), `alarm` (set up anti-theft system) |
-| **Kureimā (Complainers)** 😡 | Demand refunds, lowering NIGIWAI. | `compensate` (settle issue), `policy` (set refund rules) |
+| Type                          | Behaviour                                            | Counteraction                                              |
+| ----------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| **Nezumi (Rats)** 🐭         | Consume stock, increase hygiene risk.              | `trap` (set traps), `sanitize` (clean infected areas)       |
+| **Dorobō (Thieves)** 🏴‍☠️    | Steal money from the register.                     | `guard` (increase security), `alarm` (set up anti-theft system) |
+| **Kureimā (Complainers)** 😡  | Demand refunds, lowering NIGIWAI.                  | `compensate` (settle issue), `policy` (set refund rules)     |
 
 ## Game Over Conditions
 
-1. **Overwork**  
+1. **Overwork**
    Employees collapsing due to excessive fatigue → **Game Over**.
 
-2. **Health Department Violation**  
+2. **Health Department Violation**
    Failing to maintain hygiene (e.g., rats present too long) triggers an inspection → **Game Over**.
 
 ---
 
-Stay sharp, manage resources wisely, and keep your bakery running at peak efficiency! 🍞✨
+## Bread Recipes (Ingredients per Piece and Country of Origin)
+
+| Type of Bread   | Country of Origin | Flour (g) | Yeast (g) | Salt (g) | Butter (g) | Sugar (g) | Milk (g) | Red Bean Paste (g) | Malt (g) |
+| --------------- | ----------------- | --------: | --------: | -------: | ---------: | --------: | -------: | -----------------: | -------: |
+| Croissant       | Austria           | 41.7      | 0.8       | 0.8      | 25.0       | 4.2       | 8.3      | 0.0                | 0.0      |
+| Anpan           | Japan             | 50.0      | 0.9       | 1.0      | 3.8        | 6.3       | 12.5     | 25.0               | 0.0      |
+| Baguette        | France            | 500.0     | 5.0       | 10.0     | 0.0        | 0.0       | 0.0      | 0.0                | 10.0     |
+| Bagel           | Poland            | 62.5      | 0.9       | 1.3      | 0.0        | 1.3       | 0.0      | 0.0                | 1.9      |
+| Ciabatta        | Italy             | 400.0     | 4.0       | 8.0      | 0.0        | 0.0       | 0.0      | 0.0                | 0.0      |
+| Naan            | India             | 60.0      | 1.0       | 0.5      | 2.0        | 3.0       | 10.0     | 0.0                | 0.0      |

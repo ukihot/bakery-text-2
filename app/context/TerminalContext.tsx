@@ -3,7 +3,12 @@
 import type React from "react";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { TerminalSectionId, type UsageCode } from "../bt.types";
+import {
+    type BreadCookingStatus,
+    type BreadType,
+    TerminalSectionId,
+    type UsageCode,
+} from "../bt.types";
 import { mapAndUpdate } from "../utils/news";
 
 interface TerminalPosition {
@@ -27,6 +32,12 @@ export interface Ingredient {
     milk: number;
     redBeanPaste: number;
     malt: number;
+}
+
+export interface Bread {
+    id: string;
+    kind: BreadType;
+    cookStatus: BreadCookingStatus;
 }
 
 export type TerminalStatus = "HEALTHY" | "ANOMALY";
@@ -53,6 +64,7 @@ export interface TerminalContextType {
     repository: Ingredient;
     ingredientCost: Ingredient;
     language: "ja" | "en";
+    bread: Bread[];
     setLanguage: (lang: "ja" | "en") => void;
     updateLanguage: (lang: "ja" | "en") => void;
     updateCash: (type: TransactionType, amount: number) => void;
@@ -64,7 +76,10 @@ export interface TerminalContextType {
     deactivateTerminal: (id: TerminalSectionId) => void;
     addNews: (id: TerminalSectionId, usage: UsageCode) => void;
     updateProgress: (id: TerminalSectionId, progress: number) => void;
-    updateRepository: (isRestock: boolean, stock: Partial<Ingredient>) => void;
+    updateRepository: (
+        isRestock: boolean,
+        stock: Partial<Ingredient>,
+    ) => boolean;
     updateIngredientCost: (cost: Partial<Ingredient>) => void;
     updateTerminalStatus: (
         id: TerminalSectionId,
@@ -75,19 +90,20 @@ export interface TerminalContextType {
         id: TerminalSectionId,
         probability: number,
     ) => void;
+    updateBread: (updatedBread: Bread[]) => void;
 }
 
 const DEFAULT_CASH = 1_000.0;
 
 const DEFAULT_INGREDIENT: Ingredient = {
-    flour: 100.0,
-    yeast: 10.0,
-    salt: 10.0,
-    butter: 10.0,
-    sugar: 10.0,
-    milk: 10.0,
-    redBeanPaste: 10.0,
-    malt: 10.0,
+    flour: 100_000.0,
+    yeast: 10_000.0,
+    salt: 10_000.0,
+    butter: 10_000.0,
+    sugar: 10_000.0,
+    milk: 10_000.0,
+    redBeanPaste: 10_000.0,
+    malt: 10_000.0,
 };
 
 const DEFAULT_INGREDIENT_COST: Ingredient = {
@@ -116,6 +132,7 @@ export const TerminalProvider = ({
         DEFAULT_INGREDIENT_COST,
     );
     const [language, setLanguage] = useState<"ja" | "en">("ja");
+    const [bread, setBread] = useState<Bread[]>([]); // 作業途中のパンの状態
 
     const updateCash = useCallback(
         (type: TransactionType, amount: number) => {
@@ -246,20 +263,30 @@ export const TerminalProvider = ({
     );
 
     const updateRepository = useCallback(
-        (isRestock: boolean, stock: Partial<Ingredient>) => {
-            setRepository((prev) => ({
-                ...prev,
-                ...Object.fromEntries(
-                    Object.entries(stock).map(([key, value]) => [
-                        key,
-                        Math.max(
-                            prev[key as keyof Ingredient] +
-                                (isRestock ? (value ?? 0) : -(value ?? 0)),
-                            0,
-                        ),
-                    ]),
-                ),
-            }));
+        (isRestock: boolean, stock: Partial<Ingredient>): boolean => {
+            let isSuccess = true;
+
+            setRepository((prev) => {
+                const updatedRepository = { ...prev };
+
+                for (const [key, value] of Object.entries(stock)) {
+                    const ingredientKey = key as keyof Ingredient;
+                    const newValue =
+                        prev[ingredientKey] +
+                        (isRestock ? (value ?? 0) : -(value ?? 0));
+
+                    if (!isRestock && newValue < 0) {
+                        isSuccess = false;
+                        return prev; // 計算中止
+                    }
+
+                    updatedRepository[ingredientKey] = Math.max(newValue, 0);
+                }
+
+                return updatedRepository;
+            });
+
+            return isSuccess;
         },
         [],
     );
@@ -296,6 +323,10 @@ export const TerminalProvider = ({
         [],
     );
 
+    const updateBread = useCallback((updatedBread: Bread[]) => {
+        setBread(updatedBread);
+    }, []);
+
     const resetGame = useCallback(() => {
         setTerminals([]);
         setCash(DEFAULT_CASH);
@@ -323,6 +354,7 @@ export const TerminalProvider = ({
                 repository,
                 ingredientCost,
                 language,
+                bread,
                 setLanguage,
                 updateLanguage,
                 updateCash,
@@ -336,6 +368,7 @@ export const TerminalProvider = ({
                 updateTerminalStatus,
                 resetGame,
                 updateTroubleProbability,
+                updateBread,
             }}
         >
             {children}

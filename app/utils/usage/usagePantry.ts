@@ -9,8 +9,8 @@ export const USAGE_INGREDIENT_ITEM = (
     key: string,
     value: number,
 ): UsageCode => ({
-    ja: `${key} = ${value.toFixed(3)} KG`,
-    en: `${key} = ${value.toFixed(3)} KG`,
+    ja: `${key} = ${value.toFixed(3)} g`,
+    en: `${key} = ${value.toFixed(3)} g`,
 });
 
 export const USAGE_UNKNOWN_PANTRY_COMMAND = (cmd: string): UsageCode => ({

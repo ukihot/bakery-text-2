@@ -66,6 +66,50 @@ export const USAGE_TEXTS = {
         ja: "未処理のターミナル問題が発生しました！",
         en: "Unhandled terminal trouble!",
     },
+    PURCHASING_ACTIVITY: {
+        ja: "購買ターミナルが正常に動作しています。",
+        en: "Purchasing terminal is operating normally.",
+    },
+    PANTRY_ACTIVITY: {
+        ja: "パントリーターミナルが正常に動作しています。",
+        en: "Pantry terminal is operating normally.",
+    },
+    MIXING_ACTIVITY: {
+        ja: "ミキシングターミナルが正常に動作しています。",
+        en: "Mixing terminal is operating normally.",
+    },
+    COOLING_ACTIVITY: {
+        ja: "冷却ターミナルが正常に動作しています。",
+        en: "Cooling terminal is operating normally.",
+    },
+    SHAPING_ACTIVITY: {
+        ja: "成形ターミナルが正常に動作しています。",
+        en: "Shaping terminal is operating normally.",
+    },
+    BAKING_ACTIVITY: {
+        ja: "焼成ターミナルが正常に動作しています。",
+        en: "Baking terminal is operating normally.",
+    },
+    PACKAGING_ACTIVITY: {
+        ja: "包装ターミナルが正常に動作しています。",
+        en: "Packaging terminal is operating normally.",
+    },
+    SALES_FRONT_ACTIVITY: {
+        ja: "販売ターミナルが正常に動作しています。",
+        en: "Sales front terminal is operating normally.",
+    },
+    WASTE_ACTIVITY: {
+        ja: "廃棄物ターミナルが正常に動作しています。",
+        en: "Waste terminal is operating normally.",
+    },
+    UTILITIES_ACTIVITY: {
+        ja: "ユーティリティターミナルが正常に動作しています。",
+        en: "Utilities terminal is operating normally.",
+    },
+    UNHANDLED_ACTIVITY: {
+        ja: "未処理のターミナル活動が発生しました！",
+        en: "Unhandled terminal activity!",
+    },
 } as const;
 
 export const USAGE_EMPTY: UsageCode = {

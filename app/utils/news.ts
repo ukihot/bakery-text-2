@@ -9,10 +9,10 @@ import { v4 as uuidv4 } from "uuid";
 const calcSize = (news: News[]): number =>
     new TextEncoder().encode(JSON.stringify(news)).length;
 
-/** ニュースリストを1MB以下にトリム */
+/** ニュースリストを1KB以下にトリム */
 const trimNews = (news: News[]): News[] => {
     let totalSize = calcSize(news);
-    while (totalSize > 1024 * 1024 && news.length > 1) {
+    while (totalSize > 1024 && news.length > 1) {
         news.shift(); // 古いニュースから削除
         totalSize = calcSize(news);
     }
