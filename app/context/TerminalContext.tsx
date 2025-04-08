@@ -43,7 +43,7 @@ export interface Bread {
 export type TerminalStatus = "HEALTHY" | "ANOMALY";
 export type TransactionType = "income" | "expense";
 
-interface TerminalStatusText {
+export interface TerminalStatusText {
     terminalStatus: TerminalStatus;
     sectionText: string;
 }
