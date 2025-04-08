@@ -1,4 +1,4 @@
-import { BreadCookingStatus } from "@/app/bt.types";
+import { BreadCookingStatus, BreadType } from "@/app/bt.types";
 import {
     type TerminalContextType,
     TerminalSectionId,
@@ -6,12 +6,56 @@ import {
 import {
     USAGE_NO_PACKAGED_BREAD,
     USAGE_SALESFRONT_ACTIVITY,
+    USAGE_SALESFRONT_SOLD,
 } from "@/app/utils/usage/usageSalesFront";
 
-export const handleSalesFrontBatch = async (context: TerminalContextType) => {
-    const { bread, updateBread, addNews, updateProgress } = context;
+const BREAD_PRICES: Record<BreadType, number> = {
+    [BreadType.Croissant]: 160.65,
+    [BreadType.Anpan]: 139.0,
+    [BreadType.Begguette]: 192.78,
+    [BreadType.Ciabatta]: 240.98,
+    [BreadType.Naan]: 68.8,
+    [BreadType.Begal]: 114.24,
+};
 
-    // Packaged 状態のパンを検索
+export const handleSalesFrontBatch = async (context: TerminalContextType) => {
+    const { bread, updateBread, addNews, updateProgress, updateCash, nigiwai } =
+        context;
+
+    const isSold =
+        Math.random() * 100 < Math.min(Math.max((nigiwai / 5.0) * 100, 0), 100);
+    if (isSold) {
+        const shelvedBread = bread.filter(
+            (b) => b.cookStatus === BreadCookingStatus.Shelved,
+        );
+
+        const totalSales = shelvedBread.reduce(
+            (sum, b) => sum + Math.round((BREAD_PRICES[b.kind] ?? 0) * nigiwai),
+            0,
+        );
+
+        if (totalSales > 0) {
+            updateCash("income", totalSales);
+            for (const b of shelvedBread) {
+                addNews(
+                    TerminalSectionId.SalesFront,
+                    USAGE_SALESFRONT_SOLD(
+                        BreadType[b.kind],
+                        Math.round((BREAD_PRICES[b.kind] ?? 0) * nigiwai),
+                    ),
+                );
+            }
+        }
+
+        updateBread(
+            bread.map((b) =>
+                b.cookStatus === BreadCookingStatus.Shelved
+                    ? { ...b, cookStatus: BreadCookingStatus.Sold }
+                    : b,
+            ),
+        );
+    }
+
     const packagedBread = bread.filter(
         (b) => b.cookStatus === BreadCookingStatus.Packaged,
     );
@@ -39,12 +83,12 @@ export const handleSalesFrontBatch = async (context: TerminalContextType) => {
     await updateProgressAsync();
 
     // Shelved 状態に更新
-    const shelvedBread = bread.map((b) =>
+    const shelvedBreadUpdated = bread.map((b) =>
         b.cookStatus === BreadCookingStatus.Packaged
             ? { ...b, cookStatus: BreadCookingStatus.Shelved }
             : b,
     );
-    updateBread(shelvedBread);
+    updateBread(shelvedBreadUpdated);
 
     // ニュースを追加
     addNews(TerminalSectionId.SalesFront, USAGE_SALESFRONT_ACTIVITY);

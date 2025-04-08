@@ -5,6 +5,8 @@ export enum GeneralCommands {
     HELP = "help",
     EN = "en",
     JA = "ja",
+    REST = "rest",
+    WORK = "work",
 }
 
 export enum PurchasingCommands {
@@ -17,23 +19,19 @@ export enum PantryCommands {
 }
 
 export enum MixingCommands {
-    START = "start",
-    STOP = "stop",
+    REPAIR = "repair",
 }
 
 export enum CoolingCommands {
-    ACTIVATE = "activate",
-    DEACTIVATE = "deactivate",
+    REPAIR = "repair",
 }
 
 export enum ShapingCommands {
-    FORM = "form",
-    RESET = "reset",
+    REPAIR = "repair",
 }
 
 export enum BakingCommands {
-    PREHEAT = "preheat",
-    BAKE = "bake",
+    REPAIR = "repair",
 }
 
 export enum PackagingCommands {

@@ -14,3 +14,13 @@ export const USAGE_NO_FIRST_PROOFED_BREAD: UsageCode = {
     ja: "一次発酵済みのパンがありません。",
     en: "No first-proofed bread available.",
 };
+
+export const USAGE_SHAPING_REPAIR_SUCCESS: UsageCode = {
+    ja: "成形ターミナルの修復に成功しました。",
+    en: "Shaping terminal repair succeeded.",
+};
+
+export const USAGE_SHAPING_REPAIR_FAILURE: UsageCode = {
+    ja: "成形ターミナルの修復に失敗しました。",
+    en: "Shaping terminal repair failed.",
+};

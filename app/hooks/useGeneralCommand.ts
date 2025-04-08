@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { LogLevel, TerminalSectionId, type UsageCode } from "../bt.types";
-import { TerminalContext } from "../context/TerminalContext";
+import { TerminalContext, TerminalStatus } from "../context/TerminalContext";
 import { GeneralCommands } from "../utils/Command";
 import {
     USAGE_ACTIVATING_TERMINAL,
@@ -18,13 +18,18 @@ import {
     USAGE_LS_ITEM,
     USAGE_MISSING_ID_TERM_OPEN,
     USAGE_MODE_CHANGED,
+    USAGE_REST_FAILURE,
+    USAGE_REST_SUCCESS,
     USAGE_TERM_FORMATTED,
     USAGE_UNKNOWN_COMMAND,
     USAGE_UPDATED_TERMINAL_POSITION,
+    USAGE_WORK_FAILURE,
+    USAGE_WORK_SUCCESS,
 } from "../utils/usage/usageGeneral";
 
 export const useGeneralCommand = (
     addOutput: (usage: UsageCode, level?: LogLevel) => void,
+    mode: TerminalSectionId,
     setMode: React.Dispatch<React.SetStateAction<TerminalSectionId>>,
 ) => {
     const context = useContext(TerminalContext);
@@ -37,6 +42,7 @@ export const useGeneralCommand = (
         updateTerminalPosition,
         activateTerminal,
         updateLanguage,
+        updateTerminalStatus,
     } = context;
 
     const helpExec = useCallback(() => {
@@ -153,6 +159,42 @@ export const useGeneralCommand = (
         [addOutput, updateLanguage],
     );
 
+    const restExec = useCallback(() => {
+        const terminalId = mode; // 現在のモードを使用
+        const terminalName = TerminalSectionId[terminalId];
+        const terminal = terminals.find((t) => t.id === terminalId);
+        if (
+            terminal &&
+            terminal.statusText.terminalStatus === TerminalStatus.HEALTHY
+        ) {
+            updateTerminalStatus(terminalId, {
+                terminalStatus: TerminalStatus.ON_BREAK,
+                errorMessage: "",
+            });
+            addOutput(USAGE_REST_SUCCESS(terminalName), LogLevel.INFO);
+        } else {
+            addOutput(USAGE_REST_FAILURE(terminalName), LogLevel.ERROR);
+        }
+    }, [addOutput, terminals, updateTerminalStatus, mode]);
+
+    const workExec = useCallback(() => {
+        const terminalId = mode; // 現在のモードを使用
+        const terminalName = TerminalSectionId[terminalId];
+        const terminal = terminals.find((t) => t.id === terminalId);
+        if (
+            terminal &&
+            terminal.statusText.terminalStatus === TerminalStatus.ON_BREAK
+        ) {
+            updateTerminalStatus(terminalId, {
+                terminalStatus: TerminalStatus.HEALTHY,
+                errorMessage: "",
+            });
+            addOutput(USAGE_WORK_SUCCESS(terminalName), LogLevel.INFO);
+        } else {
+            addOutput(USAGE_WORK_FAILURE(terminalName), LogLevel.ERROR);
+        }
+    }, [addOutput, terminals, updateTerminalStatus, mode]);
+
     return useCallback(
         (command: GeneralCommands, ...args: string[]) => {
             switch (command) {
@@ -174,10 +216,25 @@ export const useGeneralCommand = (
                 case GeneralCommands.JA:
                     changeLangExec("ja");
                     break;
+                case GeneralCommands.REST:
+                    restExec();
+                    break;
+                case GeneralCommands.WORK:
+                    workExec();
+                    break;
                 default:
                     addOutput(USAGE_UNKNOWN_COMMAND, LogLevel.ERROR);
             }
         },
-        [lsExec, termExec, modeExec, helpExec, changeLangExec, addOutput],
+        [
+            lsExec,
+            termExec,
+            modeExec,
+            helpExec,
+            changeLangExec,
+            restExec,
+            workExec,
+            addOutput,
+        ],
     );
 };

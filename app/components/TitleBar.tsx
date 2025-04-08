@@ -18,6 +18,7 @@ export const TitleBar = ({
         onMouseDown={handleMouseDown}
     >
         <div className="title-bar-text">
+            {terminal.id}&nbsp;:&nbsp;
             {TerminalSectionId[terminal.id].toUpperCase()}
         </div>
         <div className="title-bar-controls">

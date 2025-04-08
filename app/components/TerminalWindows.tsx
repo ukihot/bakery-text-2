@@ -1,9 +1,14 @@
 "use client";
 
 import { useCallback, useContext, useEffect } from "react";
-import { type Terminal, TerminalContext } from "../context/TerminalContext";
+import {
+    type Terminal,
+    TerminalContext,
+    TerminalStatus,
+} from "../context/TerminalContext";
 import { useAbnormalHandlers } from "../hooks/useAbnormalHandlers";
 import { useNormalHandlers } from "../hooks/useNormalHandlers";
+import { USAGE_EMPLOYEE_MORALE_BOOST } from "../utils/usage/usageGeneral";
 import TerminalWindowUnit from "./TerminalWindowUnit";
 
 export const TerminalWindows = () => {
@@ -11,7 +16,14 @@ export const TerminalWindows = () => {
     if (!context) {
         return null;
     }
-    const { terminals } = context;
+    const {
+        terminals,
+        addNews,
+        boostMorale,
+        productionSpeed,
+        wearEquipment,
+        isGameOver,
+    } = context;
 
     const abnormalHandlers = useAbnormalHandlers(context);
     const normalHandlers = useNormalHandlers(context);
@@ -94,25 +106,55 @@ export const TerminalWindows = () => {
         [normalHandlers],
     );
 
+    const applyDamage = useCallback(
+        (terminalId: number) => {
+            const damage = Math.random() * 3 + 4; // 4から7の乱数
+            wearEquipment(terminalId, damage);
+        },
+        [wearEquipment],
+    );
+
+    // パン工房稼働
     useEffect(() => {
-        const intervals: NodeJS.Timeout[] = [];
+        const intervals = terminals.map((terminal) =>
+            setInterval(() => {
+                if (isGameOver()) return intervals.forEach(clearInterval);
 
-        for (const terminal of terminals) {
-            const interval = setInterval(() => {
-                if (terminal.statusText.terminalStatus === "HEALTHY") {
-                    handleNormalBatch(terminal);
-                }
-                if (Math.random() < terminal.troubleProbability) {
-                    handleTrouble(terminal);
-                }
-            }, 3000); // 8秒ごとに実行
-            intervals.push(interval);
-        }
+                const { terminalStatus } = terminal.statusText;
 
-        return () => {
-            intervals.forEach(clearInterval);
-        };
-    }, [terminals, handleTrouble, handleNormalBatch]);
+                switch (terminalStatus) {
+                    case TerminalStatus.ON_BREAK:
+                        boostMorale(terminal.id, 5);
+                        addNews(terminal.id, USAGE_EMPLOYEE_MORALE_BOOST);
+                        break;
+
+                    case TerminalStatus.HEALTHY:
+                        handleNormalBatch(terminal);
+                        if (Math.random() < terminal.troubleProbability) {
+                            applyDamage(terminal.id); // ダメージを適用
+                            handleTrouble(terminal);
+                        }
+                        break;
+
+                    default:
+                        applyDamage(terminal.id); // ダメージを適用
+                        handleTrouble(terminal);
+                        break;
+                }
+            }, productionSpeed),
+        );
+
+        return () => intervals.forEach(clearInterval);
+    }, [
+        terminals,
+        handleTrouble,
+        handleNormalBatch,
+        applyDamage,
+        isGameOver,
+        boostMorale,
+        addNews,
+        productionSpeed,
+    ]);
 
     return (
         <>

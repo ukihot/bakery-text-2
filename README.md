@@ -23,18 +23,19 @@ A CUI-based bakery management game focused on inventory control, maintenance, se
 
 ## Sections & Commands
 
-| ID  | Mode        | Abbr | Role                             | Management Commands (Admin Actions)                        |
-| --- | ----------- | ---- | -------------------------------- | ---------------------------------------------------------- |
-| 00  | Purchasing  | PS   | Order and manage materials       | `order` (bulk purchase), `quote` (check price trends)        |
-| 01  | Pantry      | PN   | Storage & shelf life tracking    | `rotate` (FIFO check), `audit` (spoilage check)              |
-| 02  | Mixing      | MX   | Monitor ingredient balance       | `adjust` (balance supply chain), `halt` (stop overproduction)  |
-| 03  | Cooling     | CL   | Manage storage capacity          | `temp` (set cooling power), `expand` (upgrade storage)       |
-| 04  | Shaping     | SH   | Manage efficiency & layout       | `layout` (optimise space), `inspect` (workflow check)        |
-| 05  | Baking      | BK   | Maintain oven performance        | `repair` (fix issues), `fuel` (adjust power usage)           |
-| 06  | Packaging   | PK   | Ensure quality control           | `qc` (inspect batches), `speed` (adjust packaging rate)      |
-| 07  | Sales Front | SF   | Optimise pricing & sales         | `price` (adjust rates), `promo` (trigger discounts)          |
-| 08  | Waste Station | WS | Handle waste & recycling         | `dispose` (clear expired goods), `recycle` (reduce costs)    |
-| 09  | Utilities   | UT   | Manage water, electricity, gas   | `fix` (repair leaks), `budget` (set cost limits)             |
+| ID  | Mode          | Abbr | Role                             |
+| --- | ------------- | ---- | -------------------------------- |
+| 00  | Purchasing    | PS   | Order and manage materials       |
+| 01  | Pantry        | PN   | Storage & shelf life tracking    |
+| 02  | Mixing        | MX   | Monitor ingredient balance       |
+| 03  | Cooling       | CL   | Manage storage capacity          |
+| 04  | Shaping       | SH   | Manage efficiency & layout       |
+| 05  | Baking        | BK   | Maintain oven performance        |
+| 06  | Packaging     | PK   | Ensure quality control           |
+| 07  | Sales Front   | SF   | Optimise pricing & sales         |
+| 08  | Waste Station | WS   | Handle waste & recycling         |
+| 09  | Utilities     | UT   | Manage water, electricity, gas   |
+
 ## Troubles by Department
 
 - **PS (Purchasing)**: Price surges, fraud, delivery delays (transport issues, bad weather)
@@ -62,26 +63,26 @@ Intruders cause economic losses and hygiene risks. Monitor their presence via th
 | Type                          | Behaviour                                            | Counteraction                                              |
 | ----------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
 | **Nezumi (Rats)** 🐭         | Consume stock, increase hygiene risk.              | `trap` (set traps), `sanitize` (clean infected areas)       |
-| **Dorobō (Thieves)** 🏴‍☠️    | Steal money from the register.                     | `guard` (increase security), `alarm` (set up anti-theft system) |
+| **Dorobō (Thieves)** 🏴‍☠️      | Steal money from the register.                     | `guard` (increase security), `alarm` (set up anti-theft system) |
 | **Kureimā (Complainers)** 😡  | Demand refunds, lowering NIGIWAI.                  | `compensate` (settle issue), `policy` (set refund rules)     |
 
 ## Game Over Conditions
 
-1. **Overwork**
-   Employees collapsing due to excessive fatigue → **Game Over**.
+1. Overwork
+  Employees collapsing due to excessive fatigue → **Game Over**.
 
-2. **Health Department Violation**
-   Failing to maintain hygiene (e.g., rats present too long) triggers an inspection → **Game Over**.
+2. Unresolved Troubles
+  If 4 departmental troubles remain unresolved, the bakery's operation becomes unsustainable → **Game Over**.
 
 ---
 
-## Bread Recipes (Ingredients per Piece and Country of Origin)
+## Bread Recipes & Pricing (Ingredients per Piece, Country of Origin, and Unit Price)
 
-| Type of Bread   | Country of Origin | Flour (g) | Yeast (g) | Salt (g) | Butter (g) | Sugar (g) | Milk (g) | Red Bean Paste (g) | Malt (g) |
-| --------------- | ----------------- | --------: | --------: | -------: | ---------: | --------: | -------: | -----------------: | -------: |
-| Croissant       | Austria           | 41.7      | 0.8       | 0.8      | 25.0       | 4.2       | 8.3      | 0.0                | 0.0      |
-| Anpan           | Japan             | 50.0      | 0.9       | 1.0      | 3.8        | 6.3       | 12.5     | 25.0               | 0.0      |
-| Baguette        | France            | 500.0     | 5.0       | 10.0     | 0.0        | 0.0       | 0.0      | 0.0                | 10.0     |
-| Bagel           | Poland            | 62.5      | 0.9       | 1.3      | 0.0        | 1.3       | 0.0      | 0.0                | 1.9      |
-| Ciabatta        | Italy             | 400.0     | 4.0       | 8.0      | 0.0        | 0.0       | 0.0      | 0.0                | 0.0      |
-| Naan            | India             | 60.0      | 1.0       | 0.5      | 2.0        | 3.0       | 10.0     | 0.0                | 0.0      |
+| Type of Bread   | Country of Origin | Flour (g) | Yeast (g) | Salt (g) | Butter (g) | Sugar (g) | Milk (g) | Red Bean Paste (g) | Malt (g) | Unit Price (¥) |
+| --------------- | ----------------- | --------: | --------: | -------: | ---------: | --------: | -------: | -----------------: | -------: | -------------: |
+| Croissant       | Austria           | 41.7      | 0.8       | 0.8      | 25.0       | 4.2       | 8.3      | 0.0                | 0.0      |          160.65 |
+| Anpan           | Japan             | 50.0      | 0.9       | 1.0      | 3.8        | 6.3       | 12.5     | 25.0               | 0.0      |          139.00 |
+| Baguette        | France            | 500.0     | 5.0       | 10.0     | 0.0        | 0.0       | 0.0      | 0.0                | 10.0     |          192.78 |
+| Bagel           | Poland            | 62.5      | 0.9       | 1.3      | 0.0        | 1.3       | 0.0      | 0.0                | 1.9      |          114.24 |
+| Ciabatta        | Italy             | 400.0     | 4.0       | 8.0      | 0.0        | 0.0       | 0.0      | 0.0                | 0.0      |          240.98 |
+| Naan            | India             | 60.0      | 1.0       | 0.5      | 2.0        | 3.0       | 10.0     | 0.0                | 0.0      |           68.80 |

@@ -14,3 +14,11 @@ export const USAGE_NO_PACKAGED_BREAD: UsageCode = {
     ja: "包装済みのパンがありません。",
     en: "No packaged bread available.",
 };
+
+export const USAGE_SALESFRONT_SOLD = (
+    kind: string,
+    price: number,
+): UsageCode => ({
+    ja: `${kind} が ${price} 円で売れました。`,
+    en: `${kind} sold for ${price} yen.`,
+});

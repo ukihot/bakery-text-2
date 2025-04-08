@@ -1,3 +1,4 @@
+import { TerminalStatus } from "@/app/context/TerminalContext";
 import { useEffect, useRef } from "react";
 
 export const NewsContainer = ({
@@ -13,7 +14,9 @@ export const NewsContainer = ({
     useEffect(() => {
         if (!newsContainerRef.current) return;
 
-        const isHealthy = terminalStatus === "HEALTHY";
+        const isHealthy =
+            terminalStatus === TerminalStatus.HEALTHY ||
+            terminalStatus === TerminalStatus.ON_BREAK;
         if (news.length > prevNewsLength.current && !isHealthy) {
             const items = newsContainerRef.current.children;
             if (items.length > 0) {
@@ -41,8 +44,12 @@ export const NewsContainer = ({
         >
             {news.map((item) => (
                 <div key={item.id} className="flex flex-row space-x-4">
-                    <p>[&nbsp;{item.datetime.toISOString()}&nbsp;]</p>
-                    <strong>{item.description}</strong>
+                    <p className="min-w-max flex-shrink-0 whitespace-nowrap">
+                        [&nbsp;{item.datetime.toISOString()}&nbsp;]
+                    </p>
+                    <strong className="flex-1 break-words">
+                        {item.description}
+                    </strong>
                 </div>
             ))}
         </div>

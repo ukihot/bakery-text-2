@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { LogLevel, TerminalSectionId, type UsageCode } from "../bt.types";
 import { TerminalContext } from "../context/TerminalContext";
@@ -32,6 +32,7 @@ import { greeting } from "../utils/greeting";
 import {
     USAGE_COMMAND_NOT_ALLOWED,
     USAGE_EMPTY,
+    USAGE_OPERATION_CEASED,
     USAGE_UNKNOWN_COMMAND,
 } from "../utils/usage/usageGeneral";
 import { CommandInput } from "./CommandInput";
@@ -116,26 +117,35 @@ export const BackgroundConsole = () => {
         throw new Error("TerminalContext is not available");
     }
     const { language } = context;
-    const getLocalizedMessage = (usage: UsageCode) =>
-        language === "en" && usage.en ? usage.en : usage.ja;
+    const getLocalizedMessage = useCallback(
+        (usage: UsageCode) =>
+            language === "en" && usage.en ? usage.en : usage.ja,
+        [language],
+    );
 
-    const addOutput = (usage: UsageCode, level: LogLevel = LogLevel.INFO) =>
-        setOutput((prev) => [
-            ...prev,
-            { message: getLocalizedMessage(usage), level },
-        ]);
+    const addOutput = useCallback(
+        (usage: UsageCode, level: LogLevel = LogLevel.INFO) =>
+            setOutput((prev) => [
+                ...prev,
+                { message: getLocalizedMessage(usage), level },
+            ]),
+        [getLocalizedMessage],
+    );
 
-    const replaceOutput = (usage: UsageCode, level: LogLevel = LogLevel.INFO) =>
-        setOutput((prevOutput) =>
-            prevOutput.map((log, i) =>
-                i === prevOutput.length - 1
-                    ? { message: `| ${getLocalizedMessage(usage)}`, level }
-                    : log,
+    const replaceOutput = useCallback(
+        (usage: UsageCode, level: LogLevel = LogLevel.INFO) =>
+            setOutput((prevOutput) =>
+                prevOutput.map((log, i) =>
+                    i === prevOutput.length - 1
+                        ? { message: `| ${getLocalizedMessage(usage)}`, level }
+                        : log,
+                ),
             ),
-        );
+        [getLocalizedMessage],
+    );
 
     // 各セクションのコマンド実行関数を取得
-    const generalCommandExecutor = useGeneralCommand(addOutput, setMode);
+    const generalCommandExecutor = useGeneralCommand(addOutput, mode, setMode);
     const purchasingCommandExecutor = usePurchasingCommand(
         addOutput,
         replaceOutput,
@@ -163,57 +173,57 @@ export const BackgroundConsole = () => {
         const commandMap = [
             {
                 commands: GeneralCommands,
-                mode: null,
+                modes: [] as TerminalSectionId[], // 全モードで許容
                 executor: generalCommandExecutor,
             },
             {
                 commands: PurchasingCommands,
-                mode: TerminalSectionId.Purchasing,
+                modes: [TerminalSectionId.Purchasing] as TerminalSectionId[],
                 executor: purchasingCommandExecutor,
             },
             {
                 commands: PantryCommands,
-                mode: TerminalSectionId.Pantry,
+                modes: [TerminalSectionId.Pantry] as TerminalSectionId[],
                 executor: pantryCommandExecutor,
             },
             {
                 commands: MixingCommands,
-                mode: TerminalSectionId.Mixing,
+                modes: [TerminalSectionId.Mixing] as TerminalSectionId[],
                 executor: mixingCommandExecutor,
             },
             {
                 commands: CoolingCommands,
-                mode: TerminalSectionId.Cooling,
+                modes: [TerminalSectionId.Cooling] as TerminalSectionId[],
                 executor: coolingCommandExecutor,
             },
             {
                 commands: ShapingCommands,
-                mode: TerminalSectionId.Shaping,
+                modes: [TerminalSectionId.Shaping] as TerminalSectionId[],
                 executor: shapingCommandExecutor,
             },
             {
                 commands: BakingCommands,
-                mode: TerminalSectionId.Baking,
+                modes: [TerminalSectionId.Baking] as TerminalSectionId[],
                 executor: bakingCommandExecutor,
             },
             {
                 commands: PackagingCommands,
-                mode: TerminalSectionId.Packaging,
+                modes: [TerminalSectionId.Packaging] as TerminalSectionId[],
                 executor: packagingCommandExecutor,
             },
             {
                 commands: SalesFrontCommands,
-                mode: TerminalSectionId.SalesFront,
+                modes: [TerminalSectionId.SalesFront] as TerminalSectionId[],
                 executor: salesFrontCommandExecutor,
             },
             {
                 commands: WasteCommands,
-                mode: TerminalSectionId.Waste,
+                modes: [TerminalSectionId.Waste] as TerminalSectionId[],
                 executor: wasteCommandExecutor,
             },
             {
                 commands: UtilitiesCommands,
-                mode: TerminalSectionId.Utilities,
+                modes: [TerminalSectionId.Utilities] as TerminalSectionId[],
                 executor: utilitiesCommandExecutor,
             },
         ] as const;
@@ -224,12 +234,26 @@ export const BackgroundConsole = () => {
         );
 
         if (matched) {
-            const { commands, mode: requiredMode } = matched;
-            const executor =
-                "executor" in matched ? matched.executor : undefined;
+            const { commands, modes, executor } = matched;
 
-            // モードが一致しない場合は警告を表示
-            if (requiredMode !== null && mode !== requiredMode) {
+            // 現在のモードが許容されているか確認
+            if (modes.length > 0 && !modes.includes(mode)) {
+                // 現在のモードに基づいて適切なコマンドセットを選択
+                const alternativeMatch = commandMap.find(
+                    ({ commands: altCommands, modes: altModes }) =>
+                        Object.values(altCommands).includes(
+                            cmd as keyof typeof altCommands,
+                        ) && altModes.includes(mode),
+                );
+
+                if (alternativeMatch) {
+                    alternativeMatch.executor?.(
+                        cmd as keyof typeof alternativeMatch.commands,
+                        ...args,
+                    );
+                    return;
+                }
+
                 addOutput(USAGE_COMMAND_NOT_ALLOWED(cmd), LogLevel.WARN);
                 return;
             }
@@ -285,6 +309,12 @@ export const BackgroundConsole = () => {
         };
         actions[e.key]?.();
     };
+
+    useEffect(() => {
+        if (context.isGameOver()) {
+            addOutput(USAGE_OPERATION_CEASED, LogLevel.ERROR);
+        }
+    }, [context, addOutput]);
 
     return (
         <div className="crt-grid crt-effect crt-flicker crt-noise crt-glass flex max-h-screen w-full flex-col rounded-t-2xl border-2 border-green-300 p-2 text-white">

@@ -42,10 +42,6 @@ export const USAGE_TEXTS = {
         ja: "成形ターミナルに問題が発生しました！",
         en: "Shaping terminal encountered a problem!",
     },
-    BAKING_TROUBLE: {
-        ja: "焼成ターミナルに問題が発生しました！",
-        en: "Baking terminal encountered a problem!",
-    },
     PACKAGING_TROUBLE: {
         ja: "包装ターミナルに問題が発生しました！",
         en: "Packaging terminal encountered a problem!",
@@ -85,10 +81,6 @@ export const USAGE_TEXTS = {
     SHAPING_ACTIVITY: {
         ja: "成形ターミナルが正常に動作しています。",
         en: "Shaping terminal is operating normally.",
-    },
-    BAKING_ACTIVITY: {
-        ja: "焼成ターミナルが正常に動作しています。",
-        en: "Baking terminal is operating normally.",
     },
     PACKAGING_ACTIVITY: {
         ja: "包装ターミナルが正常に動作しています。",
@@ -198,3 +190,33 @@ export const USAGE_COMMAND_NOT_ALLOWED = (cmd: string): UsageCode => ({
     ja: `コマンド "${cmd}" は現在のモードでは使用できません。`,
     en: `Command "${cmd}" is not allowed in the current mode.`,
 });
+
+export const USAGE_OPERATION_CEASED: UsageCode = {
+    ja: "営業停止しました。ブラウザを再読み込みください。",
+    en: "Operations have ceased. Please reload the browser.",
+};
+
+export const USAGE_REST_SUCCESS = (name: string): UsageCode => ({
+    ja: `ターミナル: ${name} は休憩中になりました。`,
+    en: `Terminal: ${name} is now on break.`,
+});
+
+export const USAGE_REST_FAILURE = (name: string): UsageCode => ({
+    ja: `ターミナル: ${name} は休憩できません。`,
+    en: `Terminal: ${name} cannot go on break.`,
+});
+
+export const USAGE_WORK_SUCCESS = (name: string): UsageCode => ({
+    ja: `ターミナル: ${name} は作業を再開しました。`,
+    en: `Terminal: ${name} is now back to work.`,
+});
+
+export const USAGE_WORK_FAILURE = (name: string): UsageCode => ({
+    ja: `ターミナル: ${name} は作業を再開できません。`,
+    en: `Terminal: ${name} cannot return to work.`,
+});
+
+export const USAGE_EMPLOYEE_MORALE_BOOST = {
+    ja: "休憩中の従業員の体力が回復しました。",
+    en: "The morale of employees on break has been boosted.",
+};

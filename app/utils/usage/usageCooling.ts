@@ -24,3 +24,13 @@ export const USAGE_COOLING_NO_SHAPED_BREAD: UsageCode = {
     ja: "成型済みのパンはありません。",
     en: "No shaped bread available.",
 };
+
+export const USAGE_COOLING_REPAIR_SUCCESS: UsageCode = {
+    ja: "冷却ターミナルの修復に成功しました。",
+    en: "Cooling terminal repair succeeded.",
+};
+
+export const USAGE_COOLING_REPAIR_FAILURE: UsageCode = {
+    ja: "冷却ターミナルの修復に失敗しました。",
+    en: "Cooling terminal repair failed.",
+};

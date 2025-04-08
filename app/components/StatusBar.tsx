@@ -14,8 +14,16 @@ export const StatusBar = ({ terminal }: { terminal: Terminal }) => {
                 {terminal.statusText.terminalStatus}
             </p>
             <p className="status-bar-field">
-                {terminal.statusText.sectionText}
+                TEMP: {`${terminal.thresholds.roomTemperature} ℃`}
             </p>
+            <p className="status-bar-field">
+                LOAD: {`${terminal.thresholds.equipmentWear.toFixed(1)} %`}
+            </p>
+            {terminal.statusText.errorMessage && (
+                <p className="status-bar-field">
+                    {terminal.statusText.errorMessage}
+                </p>
+            )}
         </div>
     );
 };

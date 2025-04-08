@@ -40,12 +40,39 @@ export interface Bread {
     cookStatus: BreadCookingStatus;
 }
 
-export type TerminalStatus = "HEALTHY" | "ANOMALY";
 export type TransactionType = "income" | "expense";
+
+export enum TerminalStatus {
+    HEALTHY = "HEALTHY", // 健康な状態
+    ON_BREAK = "ON_BREAK", // 休憩中
+    PRICE_SURGE = "PRICE_SURGE", // 価格高騰
+    FRAUD = "FRAUD", // 詐欺
+    DELIVERY_DELAY = "DELIVERY_DELAY", // 配送遅延
+    SPOILAGE = "SPOILAGE", // 食材の腐敗
+    PEST_INTRUSION = "PEST_INTRUSION", // 害虫の侵入
+    WORKPLACE_ACCIDENT = "WORKPLACE_ACCIDENT", // 職場での事故
+    TEMPERATURE_ANOMALY = "TEMPERATURE_ANOMALY", // 温度異常
+    GAS_LEAK = "GAS_LEAK", // ガス漏れ
+    FOREIGN_OBJECT = "FOREIGN_OBJECT", // 異物混入
+    COMPLAINER_INCIDENT = "COMPLAINER_INCIDENT", // クレーマーの発生
+    ROBBERY = "ROBBERY", // 強盗
+    OVERLOADED_WASTE = "OVERLOADED_WASTE", // 廃棄物の過剰
+    WATER_LEAK = "WATER_LEAK", // 水漏れ
+    ELECTRICAL_LEAK = "ELECTRICAL_LEAK", // 電気漏れ
+}
 
 export interface TerminalStatusText {
     terminalStatus: TerminalStatus;
-    sectionText: string;
+    errorMessage?: string;
+}
+
+export interface Thresholds {
+    roomTemperature: number; // 室温
+    rodentCount: number; // ネズミの数
+    employeeMorale: number; // 従業員の元気
+    equipmentWear: number; // 設備の摩耗度
+    wasteOverflow: number; // 廃棄物の溢れ
+    intruderCount: number; // 乱入者の数
 }
 
 export interface Terminal {
@@ -56,6 +83,7 @@ export interface Terminal {
     visible: boolean;
     progress: number;
     troubleProbability: number;
+    thresholds: Thresholds; // 各セクションの重要な閾値
 }
 
 export interface TerminalContextType {
@@ -65,6 +93,8 @@ export interface TerminalContextType {
     ingredientCost: Ingredient;
     language: "ja" | "en";
     bread: Bread[];
+    nigiwai: number;
+    productionSpeed: number;
     setLanguage: (lang: "ja" | "en") => void;
     updateLanguage: (lang: "ja" | "en") => void;
     updateCash: (type: TransactionType, amount: number) => void;
@@ -83,7 +113,7 @@ export interface TerminalContextType {
     updateIngredientCost: (cost: Partial<Ingredient>) => void;
     updateTerminalStatus: (
         id: TerminalSectionId,
-        statusText: TerminalStatusText,
+        statusText?: TerminalStatusText,
     ) => void;
     resetGame: () => void;
     updateTroubleProbability: (
@@ -92,6 +122,22 @@ export interface TerminalContextType {
     ) => void;
     updateBread: (updatedBread: Bread[]) => void;
     overviewBreadStatus: () => string;
+    countHealthyTerminals: () => number;
+    updateNigiwai: (value: number) => void;
+    setProductionSpeed: (speed: number) => void;
+    increaseTemperature: (id: TerminalSectionId, amount: number) => void;
+    decreaseTemperature: (id: TerminalSectionId, amount: number) => void;
+    increaseRodents: (id: TerminalSectionId, amount: number) => void;
+    decreaseRodents: (id: TerminalSectionId, amount: number) => void;
+    boostMorale: (id: TerminalSectionId, amount: number) => void;
+    reduceMorale: (id: TerminalSectionId, amount: number) => void;
+    maintainEquipment: (id: TerminalSectionId, amount: number) => void;
+    wearEquipment: (id: TerminalSectionId, amount: number) => void;
+    disposeWaste: (id: TerminalSectionId, amount: number) => void;
+    accumulateWaste: (id: TerminalSectionId, amount: number) => void;
+    addIntruder: (id: TerminalSectionId, amount: number) => void;
+    removeIntruder: (id: TerminalSectionId, amount: number) => void;
+    isGameOver: () => boolean;
 }
 
 const DEFAULT_CASH = 1_000.0;
@@ -118,6 +164,8 @@ const DEFAULT_INGREDIENT_COST: Ingredient = {
     malt: 1.0,
 };
 
+const DEFAULT_PRODUCTION_SPEED = 2000; // デフォルトの生産スピード
+
 export const TerminalContext = createContext<TerminalContextType | undefined>(
     undefined,
 );
@@ -134,6 +182,10 @@ export const TerminalProvider = ({
     );
     const [language, setLanguage] = useState<"ja" | "en">("ja");
     const [bread, setBread] = useState<Bread[]>([]); // 作業途中のパンの状態
+    const [nigiwai, setNigiwai] = useState<number>(1.0);
+    const [productionSpeed, setProductionSpeed] = useState<number>(
+        DEFAULT_PRODUCTION_SPEED,
+    );
 
     const updateCash = useCallback(
         (type: TransactionType, amount: number) => {
@@ -204,7 +256,10 @@ export const TerminalProvider = ({
                         y: 100 + id * 50,
                         z: maxZIndex + 1,
                     },
-                    statusText: { terminalStatus: "HEALTHY", sectionText: "" },
+                    statusText: {
+                        terminalStatus: TerminalStatus.HEALTHY,
+                        errorMessage: "",
+                    },
                     news: [
                         {
                             id: uuidv4(),
@@ -215,6 +270,14 @@ export const TerminalProvider = ({
                     visible: false,
                     progress: 0,
                     troubleProbability: 0.1,
+                    thresholds: {
+                        rodentCount: 0,
+                        roomTemperature: 25,
+                        intruderCount: 0,
+                        employeeMorale: 100,
+                        equipmentWear: 0,
+                        wasteOverflow: 0,
+                    },
                 },
             ];
         });
@@ -297,7 +360,13 @@ export const TerminalProvider = ({
     }, []);
 
     const updateTerminalStatus = useCallback(
-        (id: TerminalSectionId, statusText: TerminalStatusText) => {
+        (
+            id: TerminalSectionId,
+            statusText: TerminalStatusText = {
+                terminalStatus: TerminalStatus.HEALTHY,
+                errorMessage: "",
+            },
+        ) => {
             setTerminals((prev) =>
                 prev.map((terminal) =>
                     terminal.id === id ? { ...terminal, statusText } : terminal,
@@ -328,6 +397,266 @@ export const TerminalProvider = ({
         setBread(updatedBread);
     }, []);
 
+    const updateNigiwai = useCallback((value: number) => {
+        setNigiwai(value);
+    }, []);
+
+    const increaseTemperature = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  roomTemperature:
+                                      terminal.thresholds.roomTemperature +
+                                      amount,
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const decreaseTemperature = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  roomTemperature: Math.max(
+                                      terminal.thresholds.roomTemperature -
+                                          amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const increaseRodents = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  rodentCount:
+                                      terminal.thresholds.rodentCount + amount,
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const decreaseRodents = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  rodentCount: Math.max(
+                                      terminal.thresholds.rodentCount - amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const boostMorale = useCallback((id: TerminalSectionId, amount: number) => {
+        setTerminals((prev) =>
+            prev.map((terminal) =>
+                terminal.id === id
+                    ? {
+                          ...terminal,
+                          thresholds: {
+                              ...terminal.thresholds,
+                              employeeMorale: Math.min(
+                                  terminal.thresholds.employeeMorale + amount,
+                                  100,
+                              ),
+                          },
+                      }
+                    : terminal,
+            ),
+        );
+    }, []);
+
+    const reduceMorale = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  employeeMorale: Math.max(
+                                      terminal.thresholds.employeeMorale -
+                                          amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const maintainEquipment = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  equipmentWear: Math.max(
+                                      terminal.thresholds.equipmentWear -
+                                          amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const wearEquipment = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  equipmentWear:
+                                      terminal.thresholds.equipmentWear +
+                                      amount,
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const disposeWaste = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  wasteOverflow: Math.max(
+                                      terminal.thresholds.wasteOverflow -
+                                          amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const accumulateWaste = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  wasteOverflow:
+                                      terminal.thresholds.wasteOverflow +
+                                      amount,
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
+    const addIntruder = useCallback((id: TerminalSectionId, amount: number) => {
+        setTerminals((prev) =>
+            prev.map((terminal) =>
+                terminal.id === id
+                    ? {
+                          ...terminal,
+                          thresholds: {
+                              ...terminal.thresholds,
+                              intruderCount:
+                                  terminal.thresholds.intruderCount + amount,
+                          },
+                      }
+                    : terminal,
+            ),
+        );
+    }, []);
+
+    const removeIntruder = useCallback(
+        (id: TerminalSectionId, amount: number) => {
+            setTerminals((prev) =>
+                prev.map((terminal) =>
+                    terminal.id === id
+                        ? {
+                              ...terminal,
+                              thresholds: {
+                                  ...terminal.thresholds,
+                                  intruderCount: Math.max(
+                                      terminal.thresholds.intruderCount -
+                                          amount,
+                                      0,
+                                  ),
+                              },
+                          }
+                        : terminal,
+                ),
+            );
+        },
+        [],
+    );
+
     const overviewBreadStatus = useCallback(() => {
         const statusCount: Record<BreadCookingStatus, number> = {
             [BreadCookingStatus.Raw]: 0,
@@ -352,6 +681,33 @@ export const TerminalProvider = ({
             )
             .join("");
     }, [bread]);
+
+    const countHealthyTerminals = useCallback(() => {
+        return terminals.filter(
+            (terminal) =>
+                terminal.statusText.terminalStatus === TerminalStatus.HEALTHY,
+        ).length;
+    }, [terminals]);
+
+    const isGameOver = useCallback(() => {
+        const unhealthyCount = terminals.filter(
+            ({ statusText }) =>
+                statusText.terminalStatus !== TerminalStatus.HEALTHY &&
+                statusText.terminalStatus !== TerminalStatus.ON_BREAK,
+        ).length;
+
+        const isThresholdExceeded = ({
+            thresholds,
+        }: (typeof terminals)[number]) =>
+            thresholds.roomTemperature > 38 ||
+            thresholds.rodentCount > 6 ||
+            thresholds.employeeMorale <= 0 ||
+            thresholds.equipmentWear >= 100 ||
+            thresholds.wasteOverflow >= 100 ||
+            thresholds.intruderCount > 2;
+
+        return unhealthyCount > 4 || terminals.some(isThresholdExceeded);
+    }, [terminals]);
 
     const resetGame = useCallback(() => {
         setTerminals([]);
@@ -381,6 +737,8 @@ export const TerminalProvider = ({
                 ingredientCost,
                 language,
                 bread,
+                nigiwai,
+                productionSpeed,
                 setLanguage,
                 updateLanguage,
                 updateCash,
@@ -396,6 +754,22 @@ export const TerminalProvider = ({
                 updateTroubleProbability,
                 updateBread,
                 overviewBreadStatus,
+                countHealthyTerminals,
+                updateNigiwai,
+                setProductionSpeed,
+                increaseTemperature,
+                decreaseTemperature,
+                increaseRodents,
+                decreaseRodents,
+                boostMorale,
+                reduceMorale,
+                maintainEquipment,
+                wearEquipment,
+                disposeWaste,
+                accumulateWaste,
+                addIntruder,
+                removeIntruder,
+                isGameOver,
             }}
         >
             {children}

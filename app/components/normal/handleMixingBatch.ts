@@ -1,4 +1,4 @@
-import { BreadCookingStatus } from "@/app/bt.types";
+import { BreadCookingStatus, BreadType } from "@/app/bt.types";
 import {
     type Ingredient,
     type TerminalContextType,
@@ -42,5 +42,6 @@ export const handleMixingBatch = (context: TerminalContextType) => {
 
     updateBread([...context.bread, ...newBread]);
 
-    addNews(TerminalSectionId.Mixing, USAGE_MIXING_SUCCESS);
+    const breadKinds = newBread.map((bread) => BreadType[bread.kind]);
+    addNews(TerminalSectionId.Mixing, USAGE_MIXING_SUCCESS(breadKinds));
 };
