@@ -16,14 +16,17 @@ export const handleBakingTrouble = (context: TerminalContextType) => {
         (terminal) => terminal.id === TerminalSectionId.Baking,
     );
 
-    if (bakingTerminal?.statusText.terminalStatus === TerminalStatus.GAS_LEAK) {
+    if (
+        bakingTerminal?.statusText.terminalStatus ===
+        TerminalStatus.ABNORMAL_EVENT
+    ) {
         // トラブル内容
         addNews(TerminalSectionId.Baking, USAGE_BAKING_PANIC1);
 
         return;
     }
     const trouble: TerminalStatusText = {
-        terminalStatus: TerminalStatus.GAS_LEAK,
+        terminalStatus: TerminalStatus.ABNORMAL_EVENT,
         errorMessage: "GAS LEAKS",
     };
 

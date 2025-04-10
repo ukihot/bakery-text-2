@@ -45,20 +45,7 @@ export type TransactionType = "income" | "expense";
 export enum TerminalStatus {
     HEALTHY = "HEALTHY", // 健康な状態
     ON_BREAK = "ON_BREAK", // 休憩中
-    PRICE_SURGE = "PRICE_SURGE", // 価格高騰
-    FRAUD = "FRAUD", // 詐欺
-    DELIVERY_DELAY = "DELIVERY_DELAY", // 配送遅延
-    SPOILAGE = "SPOILAGE", // 食材の腐敗
-    PEST_INTRUSION = "PEST_INTRUSION", // 害虫の侵入
-    WORKPLACE_ACCIDENT = "WORKPLACE_ACCIDENT", // 職場での事故
-    TEMPERATURE_ANOMALY = "TEMPERATURE_ANOMALY", // 温度異常
-    GAS_LEAK = "GAS_LEAK", // ガス漏れ
-    FOREIGN_OBJECT = "FOREIGN_OBJECT", // 異物混入
-    COMPLAINER_INCIDENT = "COMPLAINER_INCIDENT", // クレーマーの発生
-    ROBBERY = "ROBBERY", // 強盗
-    OVERLOADED_WASTE = "OVERLOADED_WASTE", // 廃棄物の過剰
-    WATER_LEAK = "WATER_LEAK", // 水漏れ
-    ELECTRICAL_LEAK = "ELECTRICAL_LEAK", // 電気漏れ
+    ABNORMAL_EVENT = "ABNORMAL_EVENT", // 異常発生中
 }
 
 export interface TerminalStatusText {
