@@ -6,7 +6,7 @@ A CUI-based bakery management game focused on inventory control, maintenance, se
 
 - `help` : Display available commands for the current section.
 - `ls`   : Observe the current state.
-- `rest` : Allow employees to rest and recover from fatigue.
+- `rest` : Allow equipment to recover and maintain optimal performance.
 
 ## NIGIWAI
 
@@ -49,12 +49,12 @@ A CUI-based bakery management game focused on inventory control, maintenance, se
 
 ## Fatigue Management
 
-- Employees do not show numerical fatigue levels. Instead, their status is displayed in logs:
-  - 😊 “Looking energetic.”
-  - 😐 “Seems a bit tired.”
-  - 😫 “Moving slower than usual.”
-  - 💀 “Eyes look lifeless…”
-- Use `rest` to prevent overwork. However, excessive resting will reduce efficiency and impact the score.
+- Equipment performance degrades over time. Status is displayed in logs:
+  - 😊 “Operating smoothly.”
+  - 😐 “Performance slightly reduced.”
+  - 😫 “Operating inefficiently.”
+  - 💀 “Completely broken down.”
+- Use `rest` to prevent breakdowns. However, excessive resting will reduce overall efficiency and impact the score.
 
 ## Intruders & Security
 
@@ -68,11 +68,15 @@ Intruders cause economic losses and hygiene risks. Monitor their presence via th
 
 ## Game Over Conditions
 
-1. Overwork
-  Employees collapsing due to excessive fatigue → **Game Over**.
+If any of the following conditions are met, the bakery's operation becomes unsustainable → **Game Over**:
 
-2. Unresolved Troubles
-  If 4 departmental troubles remain unresolved, the bakery's operation becomes unsustainable → **Game Over**.
+- Room temperature exceeds 38°C.
+- Rodent count exceeds 6.
+- Equipment wear reaches 100%.
+- Waste overflow reaches 100%.
+- Intruder count exceeds 2.
+
+If more than half of the departments (5 out of 9) are in an unhealthy state (excluding those on break), the bakery's operation also becomes unsustainable → **Game Over**.
 
 ---
 
