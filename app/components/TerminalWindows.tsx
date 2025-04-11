@@ -8,7 +8,7 @@ import {
 } from "../context/TerminalContext";
 import { useAbnormalHandlers } from "../hooks/useAbnormalHandlers";
 import { useNormalHandlers } from "../hooks/useNormalHandlers";
-import { USAGE_EMPLOYEE_MORALE_BOOST } from "../utils/usage/usageGeneral";
+import { USAGE_HEAL } from "../utils/usage/usageGeneral";
 import TerminalWindowUnit from "./TerminalWindowUnit";
 
 export const TerminalWindows = () => {
@@ -19,7 +19,7 @@ export const TerminalWindows = () => {
     const {
         terminals,
         addNews,
-        boostMorale,
+        maintainEquipment,
         productionSpeed,
         wearEquipment,
         isGameOver,
@@ -124,8 +124,8 @@ export const TerminalWindows = () => {
 
                 switch (terminalStatus) {
                     case TerminalStatus.ON_BREAK:
-                        boostMorale(terminal.id, 5);
-                        addNews(terminal.id, USAGE_EMPLOYEE_MORALE_BOOST);
+                        maintainEquipment(terminal.id, 5);
+                        addNews(terminal.id, USAGE_HEAL);
                         break;
 
                     case TerminalStatus.HEALTHY:
@@ -151,7 +151,7 @@ export const TerminalWindows = () => {
         handleNormalBatch,
         applyDamage,
         isGameOver,
-        boostMorale,
+        maintainEquipment,
         addNews,
         productionSpeed,
     ]);

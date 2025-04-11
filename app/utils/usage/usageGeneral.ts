@@ -216,7 +216,7 @@ export const USAGE_WORK_FAILURE = (name: string): UsageCode => ({
     en: `Terminal: ${name} cannot return to work.`,
 });
 
-export const USAGE_EMPLOYEE_MORALE_BOOST = {
-    ja: "休憩中の従業員の体力が回復しました。",
-    en: "The morale of employees on break has been boosted.",
+export const USAGE_HEAL = {
+    ja: "設備の改修をしました。",
+    en: "The facilities have been repaired.",
 };

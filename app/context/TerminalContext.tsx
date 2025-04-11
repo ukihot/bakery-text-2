@@ -56,7 +56,6 @@ export interface TerminalStatusText {
 export interface Thresholds {
     roomTemperature: number; // 室温
     rodentCount: number; // ネズミの数
-    employeeMorale: number; // 従業員の元気
     equipmentWear: number; // 設備の摩耗度
     wasteOverflow: number; // 廃棄物の溢れ
     intruderCount: number; // 乱入者の数
@@ -116,8 +115,6 @@ export interface TerminalContextType {
     decreaseTemperature: (id: TerminalSectionId, amount: number) => void;
     increaseRodents: (id: TerminalSectionId, amount: number) => void;
     decreaseRodents: (id: TerminalSectionId, amount: number) => void;
-    boostMorale: (id: TerminalSectionId, amount: number) => void;
-    reduceMorale: (id: TerminalSectionId, amount: number) => void;
     maintainEquipment: (id: TerminalSectionId, amount: number) => void;
     wearEquipment: (id: TerminalSectionId, amount: number) => void;
     disposeWaste: (id: TerminalSectionId, amount: number) => void;
@@ -474,48 +471,6 @@ export const TerminalProvider = ({
         [],
     );
 
-    const boostMorale = useCallback((id: TerminalSectionId, amount: number) => {
-        setTerminals((prev) =>
-            prev.map((terminal) =>
-                terminal.id === id
-                    ? {
-                          ...terminal,
-                          thresholds: {
-                              ...terminal.thresholds,
-                              employeeMorale: Math.min(
-                                  terminal.thresholds.employeeMorale + amount,
-                                  100,
-                              ),
-                          },
-                      }
-                    : terminal,
-            ),
-        );
-    }, []);
-
-    const reduceMorale = useCallback(
-        (id: TerminalSectionId, amount: number) => {
-            setTerminals((prev) =>
-                prev.map((terminal) =>
-                    terminal.id === id
-                        ? {
-                              ...terminal,
-                              thresholds: {
-                                  ...terminal.thresholds,
-                                  employeeMorale: Math.max(
-                                      terminal.thresholds.employeeMorale -
-                                          amount,
-                                      0,
-                                  ),
-                              },
-                          }
-                        : terminal,
-                ),
-            );
-        },
-        [],
-    );
-
     const maintainEquipment = useCallback(
         (id: TerminalSectionId, amount: number) => {
             setTerminals((prev) =>
@@ -688,7 +643,6 @@ export const TerminalProvider = ({
         }: (typeof terminals)[number]) =>
             thresholds.roomTemperature > 38 ||
             thresholds.rodentCount > 6 ||
-            thresholds.employeeMorale <= 0 ||
             thresholds.equipmentWear >= 100 ||
             thresholds.wasteOverflow >= 100 ||
             thresholds.intruderCount > 2;
@@ -748,8 +702,6 @@ export const TerminalProvider = ({
                 decreaseTemperature,
                 increaseRodents,
                 decreaseRodents,
-                boostMorale,
-                reduceMorale,
                 maintainEquipment,
                 wearEquipment,
                 disposeWaste,
