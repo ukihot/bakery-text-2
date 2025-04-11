@@ -327,7 +327,7 @@ export const BackgroundConsole = () => {
                 handleKeyDown={handleKeyDown}
                 inputRef={inputRef as React.RefObject<HTMLInputElement>}
                 mode={mode}
-                isInputEnabled={isInputEnabled}
+                isInputEnabled={isInputEnabled && !context.isGameOver()}
             />
         </div>
     );
