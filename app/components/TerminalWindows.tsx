@@ -108,7 +108,7 @@ export const TerminalWindows = () => {
 
     const applyDamage = useCallback(
         (terminalId: number) => {
-            const damage = Math.random() * 3 + 4; // 4から7の乱数
+            const damage = Math.random() * 3; // 0から3の乱数
             wearEquipment(terminalId, damage);
         },
         [wearEquipment],

@@ -124,17 +124,17 @@ export interface TerminalContextType {
     isGameOver: () => boolean;
 }
 
-const DEFAULT_CASH = 1_000.0;
+const DEFAULT_CASH = 100_000.0;
 
 const DEFAULT_INGREDIENT: Ingredient = {
-    flour: 100_000.0,
-    yeast: 10_000.0,
-    salt: 10_000.0,
-    butter: 10_000.0,
-    sugar: 10_000.0,
-    milk: 10_000.0,
-    redBeanPaste: 10_000.0,
-    malt: 10_000.0,
+    flour: 10_000.0,
+    yeast: 1_000.0,
+    salt: 1_000.0,
+    butter: 1_000.0,
+    sugar: 1_000.0,
+    milk: 1_000.0,
+    redBeanPaste: 1_000.0,
+    malt: 1_000.0,
 };
 
 const DEFAULT_INGREDIENT_COST: Ingredient = {
@@ -148,7 +148,7 @@ const DEFAULT_INGREDIENT_COST: Ingredient = {
     malt: 1.0,
 };
 
-const DEFAULT_PRODUCTION_SPEED = 2000; // デフォルトの生産スピード
+const DEFAULT_PRODUCTION_SPEED = 5000; // デフォルトの生産スピード
 
 export const TerminalContext = createContext<TerminalContextType | undefined>(
     undefined,
@@ -312,8 +312,21 @@ export const TerminalProvider = ({
 
     const updateRepository = useCallback(
         (isRestock: boolean, stock: Partial<Ingredient>): boolean => {
-            let isSuccess = true;
+            let hasInsufficientIngredients = false;
 
+            // チェックフェーズ: 必要な量が存在するか確認
+            if (!isRestock) {
+                for (const [key, value] of Object.entries(stock)) {
+                    const ingredientKey = key as keyof Ingredient;
+                    if ((repository[ingredientKey] ?? 0) < (value ?? 0)) {
+                        hasInsufficientIngredients = true;
+                        break;
+                    }
+                }
+                if (hasInsufficientIngredients) return false;
+            }
+
+            // 更新フェーズ: 在庫を更新
             setRepository((prev) => {
                 const updatedRepository = { ...prev };
 
@@ -323,20 +336,15 @@ export const TerminalProvider = ({
                         prev[ingredientKey] +
                         (isRestock ? (value ?? 0) : -(value ?? 0));
 
-                    if (!isRestock && newValue < 0) {
-                        isSuccess = false;
-                        return prev; // 計算中止
-                    }
-
                     updatedRepository[ingredientKey] = Math.max(newValue, 0);
                 }
 
                 return updatedRepository;
             });
 
-            return isSuccess;
+            return true;
         },
-        [],
+        [repository],
     );
 
     const updateIngredientCost = useCallback((cost: Partial<Ingredient>) => {

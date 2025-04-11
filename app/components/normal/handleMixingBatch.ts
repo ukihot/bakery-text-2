@@ -6,42 +6,57 @@ import {
 } from "@/app/context/TerminalContext";
 import { breadRecipes } from "@/app/utils/breadRecipe";
 import {
+    USAGE_INGREDIENT_CONSUMPTION,
     USAGE_MIXING_ERROR,
     USAGE_MIXING_SUCCESS,
 } from "@/app/utils/usage/usageMixing";
 import { v4 as uuidv4 } from "uuid";
 
-export const handleMixingBatch = (context: TerminalContextType) => {
+export const handleMixingBatch = async (context: TerminalContextType) => {
     const { addNews, updateRepository, updateBread } = context;
 
-    // 消費する原料を計算
-    const totalConsumption = breadRecipes.reduce(
-        (acc, recipe) => {
-            for (const key of Object.keys(recipe) as (keyof typeof recipe)[]) {
+    const newBread = [];
+    for (const recipe of breadRecipes) {
+        const requiredIngredients = Object.entries(recipe).reduce(
+            (acc, [key, value]) => {
                 if (key !== "kind") {
-                    acc[key] = (acc[key] || 0) + recipe[key];
+                    acc[key as keyof Ingredient] = value;
                 }
-            }
-            return acc;
-        },
-        {} as Partial<Ingredient>,
-    );
+                return acc;
+            },
+            {} as Partial<Ingredient>,
+        );
 
-    // 原料を消費
-    if (!updateRepository(false, totalConsumption)) {
-        addNews(TerminalSectionId.Mixing, USAGE_MIXING_ERROR);
-        return;
+        const isSuccess = updateRepository(false, requiredIngredients);
+        const breadKind = BreadType[recipe.kind];
+
+        // 必要な原料が不足している場合は次のパンに進む
+        if (!isSuccess) {
+            addNews(TerminalSectionId.Mixing, USAGE_MIXING_ERROR(breadKind));
+            continue;
+        }
+
+        // 原料消費のusageを追加
+        for (const [ingredient, amount] of Object.entries(
+            requiredIngredients,
+        )) {
+            if (amount > 0) {
+                addNews(
+                    TerminalSectionId.Mixing,
+                    USAGE_INGREDIENT_CONSUMPTION(ingredient, amount),
+                );
+            }
+        }
+
+        // 原料を消費し、パンを追加
+        newBread.push({
+            id: uuidv4(),
+            kind: recipe.kind,
+            cookStatus: BreadCookingStatus.Raw,
+        });
+
+        addNews(TerminalSectionId.Mixing, USAGE_MIXING_SUCCESS(breadKind));
     }
 
-    // 製造したパン
-    const newBread = breadRecipes.map((recipe) => ({
-        id: uuidv4(),
-        kind: recipe.kind,
-        cookStatus: BreadCookingStatus.Raw,
-    }));
-
     updateBread([...context.bread, ...newBread]);
-
-    const breadKinds = newBread.map((bread) => BreadType[bread.kind]);
-    addNews(TerminalSectionId.Mixing, USAGE_MIXING_SUCCESS(breadKinds));
 };
